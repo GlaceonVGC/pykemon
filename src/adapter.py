@@ -42,13 +42,23 @@ def new_frame() -> None:
 
 # adapter for pygame.font.Font
 fonts = {}
+offset_y = {}
 def get_font(size: int) -> pygame.font.Font: # for internal use only
     if size not in fonts:
-        fonts[size] = pygame.font.SysFont("Ubuntu Mono", size) # because the actual font isn't copied here yet
+        fonts[size] = pygame.font.Font("../resources/font.ttf", size)
+        offset_y[size] = fonts[size].metrics("f")[0][3] - fonts[size].get_ascent()
     return fonts[size]
 
 # adapter for pygame.Surface
 class Surface():
+    @staticmethod
+    def copy(surface):
+        if isinstance(surface, Surface):
+            surface = surface.surface
+        new = Surface()
+        new.surface = surface
+        return new
+        
     @staticmethod
     def create(width: int, height: int):
         surface = Surface()
@@ -70,5 +80,8 @@ class Surface():
     def fill(self, shape, color: color.Color = None) -> None:
         shape.fill(self.surface, self.bgcolor if color is None else color)
 
-    def write(self, content: str, position: tuple, color: color.Color = None, size: int = 8) -> None:
-        self.blit(get_font(size).render(content, True, (self.fgcolor if color is None else color).convert()), position)
+    def write(self, content: str, position: tuple, color: color.Color = None, size: int = 11) -> None:
+        self.blit(get_font(size).render(content, True, (self.fgcolor if color is None else color).convert()), (position[0], position[1] + offset_y[size]))
+
+    def scale(self, width: int, height: int):
+        return Surface.copy(pygame.transform.scale(self.surface, (width, height)))
