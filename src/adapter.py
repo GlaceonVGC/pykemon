@@ -40,6 +40,13 @@ def new_frame() -> None:
             keys[key] += config.KEY_INTERVAL
             eventHandler.key(key)
 
+# adapter for pygame.font.Font
+fonts = {}
+def get_font(size: int) -> pygame.font.Font: # for internal use only
+    if size not in fonts:
+        fonts[size] = pygame.font.SysFont("Ubuntu Mono", size) # because the actual font isn't copied here yet
+    return fonts[size]
+
 # adapter for pygame.Surface
 class Surface():
     @staticmethod
@@ -55,8 +62,13 @@ class Surface():
         surface.surface = pygame.display.set_mode((width, height))
         return surface
 
-    def blit(self, source, position: tuple) -> None:
-        self.surface.blit(source.surface, position)
+    def blit(self, source, position: tuple) -> None: # blits either Surface or pygame.Surface, the latter one for internal use only
+        if isinstance(source, Surface):
+            source = source.surface
+        self.surface.blit(source, position)
 
     def fill(self, shape, color: color.Color = None) -> None:
-        shape.fill(self.surface, self.backgroundColor if color is None else color)
+        shape.fill(self.surface, self.bgcolor if color is None else color)
+
+    def write(self, content: str, position: tuple, color: color.Color = None, size: int = 8) -> None:
+        self.blit(get_font(size).render(content, True, (self.fgcolor if color is None else color).convert()), position)
