@@ -1,5 +1,6 @@
 import sys
 import pygame
+import align
 import color
 import config
 import draw
@@ -71,13 +72,13 @@ class Surface():
     def createScreen(width: int, height: int):
         pygame.init()
         surface = Surface()
-        surface.surface = pygame.display.set_mode((width, height))
+        surface.surface = pygame.display.set_mode((width, height), pygame.SRCALPHA)
         return surface
 
-    def blit(self, source, position: tuple) -> None: # blits either Surface or pygame.Surface, the latter one for internal use only
+    def blit(self, source, position: tuple, align: align.Align = align.Q) -> None: # blits either Surface or pygame.Surface, the latter one for internal use only
         if isinstance(source, Surface):
             source = source.surface
-        self.surface.blit(source, position)
+        self.surface.blit(source, align(position, source.get_size()))
 
     def fill(self, shape: shapes.Shape, color: color.Color = None) -> None:
         shape.fill(self.surface, draw.BGC(color))
@@ -88,8 +89,10 @@ class Surface():
     def draw(self, shape: shapes.ClosedShape, colors: tuple = (None, None)) -> None:
         shape.draw(self.surface, (draw.BGC(colors[0]), draw.FGC(colors[1])))
 
-    def write(self, content: str, position: tuple, color: color.Color = None, size: int = 7) -> None:
-        self.blit(get_font(size).render(content, True, draw.FGC(color).convert()), (position[0], position[1] + offset_y[size]))
-
     def scale(self, width: int, height: int):
         return Surface.copy(pygame.transform.scale(self.surface, (width, height)))
+
+def render(text: str, color: color.Color = None, size: int = 7) -> pygame.Surface:
+    surface = Surface.create((size + 1) // 2 * len(text), size + 1)
+    surface.blit(get_font(size).render(text, True, draw.FGC(color).convert()), (0, offset_y[size]))
+    return surface

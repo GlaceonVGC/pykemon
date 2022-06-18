@@ -4,6 +4,9 @@ class Color():
     def convert(self) -> pygame.Color:
         return (self.r, self.g, self.b, self.a)
 
+    def alpha(self, a: int):
+        return RGBA(self.r, self.g, self.b, a)
+
 def RGBA(r: int, g: int, b: int, a: int = 255) -> Color:
     color = Color()
     color.r = r
