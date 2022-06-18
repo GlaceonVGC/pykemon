@@ -1,6 +1,8 @@
 import random
 import adapter
+import align
 import color
+import language
 import shapes
 import version
 
@@ -22,15 +24,14 @@ class PainterInterface():
 class TitlePainter(PainterInterface):
     def __init__(self):
         self.information = random.choice(version.INFORMATION)
-        self.information_x = 253 - len(self.information) * 6
     def paint(self) -> tuple:
         self.prepare()
-        self.upper.fill(shapes.Rectangle(0, 0, 256, 192), color.Color.RGB(255, 255, 255))
-        self.upper.fgcolor = color.Color.RGB(0, 0, 0)
-        self.upper.write(version.NAME, (2, 2), None, 71)
-        self.upper.write(version.VERSION, (2, 76))
-        self.upper.write(self.information, (self.information_x, 76))
-        self.upper.write("press select to continue", (56, 170))
+        self.upper.fill(shapes.Rectangle(0, 0, 256, 192), color.WHITE)
+        self.upper.fgcolor = color.BLACK
+        self.upper.write(version.NAME, align.W((128, 1), (252, 72)), None, 71)
+        self.upper.write(version.VERSION, align.Q((2, 74), (4 * len(version.VERSION), 8)))
+        self.upper.write(self.information, align.E((254, 74), (4 * len(self.information), 8)))
+        self.upper.write(language.PRESS_SELECT_TO_CONTINUE, align.X((128, 175), (4 * len(language.PRESS_SELECT_TO_CONTINUE), 8)))
         return self.upper, self.lower
 
 current = TitlePainter()

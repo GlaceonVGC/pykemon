@@ -2,14 +2,23 @@ import pygame
 import color
 
 class Shape():
-    pass
+    def stroke(self, surface: pygame.Surface, color: color.Color) -> None:
+        pass
 
 class ClosedShape(Shape):
     def fill(self, surface: pygame.Surface, color: color.Color) -> None:
         pass
 
+    def draw(self, surface: pygame.Surface, colors: tuple) -> None:
+        # colors: (fill, stroke)
+        self.fill(colors[0])
+        self.stroke(colors[1])
+
 class Polygon(ClosedShape):
     def fill(self, surface: pygame.Surface, color: color.Color) -> None:
+        pass # TODO
+
+    def stroke(self, surface: pygame.Surface, color: color.Color) -> None:
         pass # TODO
 
 class Rectangle(Polygon):
@@ -18,6 +27,12 @@ class Rectangle(Polygon):
         self.top = top
         self.width = width
         self.height = height
+
+    def convert(self) -> tuple:
+        return (self.left, self.top, self.width, self.height)
         
     def fill(self, surface: pygame.Surface, color: color.Color) -> None:
-        surface.fill(pygame.Color(color.r, color.g, color.b), pygame.Rect(self.left, self.top, self.width, self.height))
+        pygame.draw.rect(surface, color.convert(), self.convert())
+
+    def stroke(self, surface: pygame.Surface, color: color.Color) -> None:
+        pygame.draw.rect(surface, color.convert(), self.convert(), 1)

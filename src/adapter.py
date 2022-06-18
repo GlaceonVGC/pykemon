@@ -2,7 +2,9 @@ import sys
 import pygame
 import color
 import config
+import draw
 import event_handler_interface
+import shapes
 
 # adapter for pygame.time.get_ticks
 # varible ticks is to be changed in function new_frame,
@@ -77,11 +79,17 @@ class Surface():
             source = source.surface
         self.surface.blit(source, position)
 
-    def fill(self, shape, color: color.Color = None) -> None:
-        shape.fill(self.surface, self.bgcolor if color is None else color)
+    def fill(self, shape: shapes.Shape, color: color.Color = None) -> None:
+        shape.fill(self.surface, draw.BGC(color))
 
-    def write(self, content: str, position: tuple, color: color.Color = None, size: int = 11) -> None:
-        self.blit(get_font(size).render(content, True, (self.fgcolor if color is None else color).convert()), (position[0], position[1] + offset_y[size]))
+    def stroke(self, shape: shapes.ClosedShape, color: color.Color = None) -> None:
+        shape.stroke(self.surface, draw.FGC(color))
+
+    def draw(self, shape: shapes.ClosedShape, colors: tuple = (None, None)) -> None:
+        shape.draw(self.surface, (draw.BGC(colors[0]), draw.FGC(colors[1])))
+
+    def write(self, content: str, position: tuple, color: color.Color = None, size: int = 7) -> None:
+        self.blit(get_font(size).render(content, True, draw.FGC(color).convert()), (position[0], position[1] + offset_y[size]))
 
     def scale(self, width: int, height: int):
         return Surface.copy(pygame.transform.scale(self.surface, (width, height)))
