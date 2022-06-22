@@ -1,13 +1,24 @@
 import pygame
 import color
 
-class Shape():
+class Shape(): # interface, strokeOn() to be defined
     def stroke(self, surface: pygame.Surface, color: color.Color) -> None:
         s = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
         self.strokeOn(s, color)
         surface.blit(s, (0, 0))
 
-class ClosedShape(Shape):
+    def draw(self, surface: pygame.Surface, colors: tuple) -> None:
+        self.stroke(surface, colors[1])
+
+class Line(Shape):
+    def __init__(self, start: tuple, end: tuple):
+        self.start = start
+        self.end = end
+
+    def strokeOn(self, surface: pygame.Surface, color: color.Color) -> None:
+        pygame.draw.line(surface, color.convert(), self.start, self.end)
+
+class ClosedShape(Shape): # interface, strokeOn() and fillOn() to be defined
     def fill(self, surface: pygame.Surface, color: color.Color) -> None:
         s = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
         self.fillOn(s, color)
@@ -15,8 +26,8 @@ class ClosedShape(Shape):
 
     def draw(self, surface: pygame.Surface, colors: tuple) -> None:
         # colors: (fill, stroke)
-        self.fill(colors[0])
-        self.stroke(colors[1])
+        self.fill(surface, colors[0])
+        self.stroke(surface, colors[1])
 
 class Ellipse(ClosedShape):
     def __init__(self, left: int, top: int, width: int, height: int = None):
@@ -35,11 +46,14 @@ class Ellipse(ClosedShape):
         pygame.draw.ellipse(surface, color.convert(), self.convert(), 1)
 
 class Polygon(ClosedShape):
+    def __init__(self, *vertice: tuple) -> None:
+        self.vertice = vertice
+
     def fillOn(self, surface: pygame.Surface, color: color.Color) -> None:
-        pass # TODO
+        pygame.draw.polygon(surface, color.convert(), self.vertice)
 
     def strokeOn(self, surface: pygame.Surface, color: color.Color) -> None:
-        pass # TODO
+        pygame.draw.polygon(surface, color.convert(), self.vertice, 1)
 
 class Rectangle(Polygon):
     def __init__(self, left: int, top: int, width: int, height: int = None):

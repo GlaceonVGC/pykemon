@@ -14,6 +14,10 @@ ticks = 0
 def get_tick() -> int:
     return ticks
 
+mousePosition = (0, 0)
+def get_mouse_position() -> tuple:
+    return mousePosition
+
 # setting event handler
 eventHandler = event_handler_interface.EventHandlerInterface() # a dull one for default
 def set_event_handler(newHandler) -> None:
@@ -23,9 +27,10 @@ def set_event_handler(newHandler) -> None:
 # displaying the screen, setting the time of the frame and reacting to events
 keys = {}
 def new_frame() -> None:
-    global ticks
+    global ticks, mousePosition
     pygame.display.flip()
     ticks = pygame.time.get_ticks()
+    mousePosition = pygame.mouse.get_pos()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -37,7 +42,7 @@ def new_frame() -> None:
             if event.key in keys:
                 del keys[event.key]
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            eventHandler.click(pygame.mouse.get_pos())
+            eventHandler.click(get_mouse_position())
     for key in keys:
         while keys[key] <= get_tick():
             keys[key] += config.KEY_INTERVAL
@@ -54,6 +59,10 @@ def get_font(size: int) -> pygame.font.Font: # for internal use only
 
 # adapter for pygame.Surface
 class Surface():
+    @staticmethod
+    def load(path: str):
+        return Surface.copy(pygame.image.load(path))
+
     @staticmethod
     def copy(surface):
         if isinstance(surface, Surface):
@@ -80,19 +89,22 @@ class Surface():
             source = source.surface
         self.surface.blit(source, align(position, source.get_size()))
 
-    def fill(self, shape: shapes.Shape, color: color.Color = None) -> None:
+    def fill(self, shape: shapes.ClosedShape, color: color.Color = None) -> None:
         shape.fill(self.surface, draw.BGC(color))
 
-    def stroke(self, shape: shapes.ClosedShape, color: color.Color = None) -> None:
+    def stroke(self, shape: shapes.Shape, color: color.Color = None) -> None:
         shape.stroke(self.surface, draw.FGC(color))
 
-    def draw(self, shape: shapes.ClosedShape, colors: tuple = (None, None)) -> None:
+    def draw(self, shape: shapes.Shape, colors: tuple = (None, None)) -> None:
         shape.draw(self.surface, (draw.BGC(colors[0]), draw.FGC(colors[1])))
 
     def scale(self, width: int, height: int):
         return Surface.copy(pygame.transform.scale(self.surface, (width, height)))
 
-def render(text: str, color: color.Color = None, size: int = 7) -> pygame.Surface:
-    surface = Surface.create((size + 1) // 2 * len(text), size + 1)
+def Text(text: str, color: color.Color = None, size: int = 7) -> pygame.Surface:
+    surface = Surface.create(get_font(size).size(text)[0], size + 1)
     surface.blit(get_font(size).render(text, True, draw.FGC(color).convert()), (0, offset_y[size]))
     return surface
+
+def quit() -> None:
+    pygame.quit()

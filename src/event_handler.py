@@ -1,8 +1,10 @@
 import event_handler_interface
-import painters
+import painter
 
 class EventHandler(event_handler_interface.EventHandlerInterface):
     def click(self, position: tuple) -> None:
-        painters.current.click(position)
+        if position[1] >= 192:
+            painter.current.clickLower((position[0], position[1] - 192))
+        
     def key(self, key: int) -> None:
-        painters.current.key(key)
+        painter.current.key(key)

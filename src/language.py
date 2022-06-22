@@ -1,3 +1,5 @@
 PRESS_SELECT_TO_CONTINUE = "press select to continue"
 SELECT_ARCHIVE = "select archive"
 SHOW_HINTS = "show hints"
+HIDE_HINTS = "hide hints"
+UPDATE_LOG = "Update Log"
