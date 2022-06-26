@@ -14,9 +14,10 @@ ticks = 0
 def get_tick() -> int:
     return ticks
 
-mousePosition = (0, 0)
-def get_mouse_position() -> tuple:
-    return mousePosition
+mouseX, mouseY = mousePosition = (0, 0)
+
+def map_to_lower(position: tuple) -> tuple:
+    return (position[0], position[1] - 192) if position[1] >= 192 else None
 
 # setting event handler
 eventHandler = event_handler_interface.EventHandlerInterface() # a dull one for default
@@ -26,11 +27,15 @@ def set_event_handler(newHandler) -> None:
 
 # displaying the screen, setting the time of the frame and reacting to events
 keys = {}
+click = None
 def new_frame() -> None:
-    global ticks, mousePosition
+    global ticks, mousePosition, click, mouseX, mouseY
     pygame.display.flip()
     ticks = pygame.time.get_ticks()
-    mousePosition = pygame.mouse.get_pos()
+    if (mousePosition := map_to_lower(pygame.mouse.get_pos())) is not None:
+        mouseX, mouseY = mousePosition
+    else:
+        mouseX = mouseY = None
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -42,7 +47,13 @@ def new_frame() -> None:
             if event.key in keys:
                 del keys[event.key]
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            eventHandler.click(get_mouse_position())
+            if mousePosition is not None and click is None:
+                eventHandler.click(mousePosition)
+                click = mousePosition
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if click is not None:
+                eventHandler.endClick()
+                click = None
     for key in keys:
         while keys[key] <= get_tick():
             keys[key] += config.KEY_INTERVAL
@@ -70,7 +81,7 @@ class Surface():
         new = Surface()
         new.surface = surface
         return new
-        
+
     @staticmethod
     def create(width: int, height: int):
         surface = Surface()
@@ -108,3 +119,6 @@ def Text(text: str, color: color.Color = None, size: int = 7) -> pygame.Surface:
 
 def quit() -> None:
     pygame.quit()
+    with open("archives.py", "w") as f:
+        for i in archives:
+            f.write("archives.append(Archive(\"%s\", %d))\n" % (i.name, i.progress))

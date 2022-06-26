@@ -15,16 +15,33 @@ class SelectOperation(painter.Operation):
 
     def text(self) -> str:
         return language.SELECT_ARCHIVE
-    
+
 class TitlePainter(painter.PainterInterface):
     def __init__(self) -> None:
         super().__init__()
         self.log = random.choice(version.VERSIONS[-1].log)
         self.keys[config.SELECT] = SelectOperation()
         self.current = len(version.VERSIONS) - 1
+        self.isPressed = False
 
-    def getTop(self, relation: int = None) -> int:
-        return 118 * (self.current + relation) // len(version.VERSIONS)
+    def setCurrent(self, newCurrent: int) -> None:
+        self.current = version.get_proper(newCurrent)
+
+    def getIndex(self) -> int:
+        if adapter.mousePosition is None:
+            self.isPressed = False
+        if self.isPressed:
+            self.setCurrent((adapter.mouseY - 61) * len(version.VERSIONS) // 118)
+        return self.current
+
+    def getVersion(self) -> version.Version:
+        return version.VERSIONS[self.getIndex()]
+
+    def getTop(self) -> int:
+        return 61 + 118 * self.getIndex() // len(version.VERSIONS)
+
+    def getBottom(self) -> int:
+        return 64 + 118 * (self.getIndex() + 1) // len(version.VERSIONS)
 
     def getColors(self) -> tuple:
         return (color.BLACK, color.RGBA(170, 170, 170))
@@ -39,32 +56,29 @@ class TitlePainter(painter.PainterInterface):
     def paintLower(self, lower: adapter.Surface) -> None:
         lower.blit(adapter.Text(language.UPDATE_LOG, None, 48), (1, 1))
         lower.stroke(shapes.Line((1, 50), (254, 50)))
-        lower.blit(adapter.Text(version.VERSIONS[-1].name, None, 24), (1, 52))
-        for i, j in enumerate(version.VERSIONS[self.current].log[:10]):
+        lower.blit(adapter.Text(self.getVersion().name, None, 24), (1, 52))
+        for i, j in enumerate(self.getVersion().log[:10]):
             lower.draw(shapes.Ellipse(1, 77 + 9 * i, 8))
             lower.blit(adapter.Text(j), (10, 77 + 9 * i))
         lower.draw(shapes.Polygon((249, 52), (254, 57), (243, 57), (248, 52)))
         lower.draw(shapes.Rectangle(243, 59, 12, 125))
-        lower.draw(shapes.Rectangle(245, 61 + self.getTop(0),
-                                    8, 3 + self.getTop(1) - self.getTop(0)),
+        lower.draw(shapes.Rectangle(245, self.getTop(),
+                                    8, self.getBottom() - self.getTop()),
                    (color.RGBA(85, 85, 85), None))
         lower.draw(shapes.Polygon((254, 185), (249, 190), (248, 190), (243, 185)))
 
-    def toPrevious(self) -> None:
-        self.current = max(0, self.current - 1)
-
-    def toNext(self) -> None:
-        self.current = min(len(version.VERSIONS) - 1, self.current + 1)
-
     def clickLower(self, position: tuple) -> None:
         if position[1] <= 57 and position[0] + position[1] >= 300 and position[0] - position[1] <= 197:
-            self.toPrevious()
+            self.setCurrent(self.current - 1)
         elif position[1] >= 185 and position[0] + position[1] <= 439 and position[0] - position[1] >= 58:
-            self.toNext()
+            self.setCurrent(self.current + 1)
         elif position[0] >= 243 and position[0] <= 254:
-            if position[1] >= 59 and position[1] <= 60 + self.getTop(0):
-                self.toPrevious()
-            elif position[1] >= 65 + self.getTop(1) and position[1] <= 183:
-                self.toNext()
-            elif position[1] >= 61 + self.getTop(0) and position[1] <= 64 + self.getTop(1):
-                pass
+            if position[1] >= 59 and position[1] < self.getTop():
+                self.setCurrent(self.current - 1)
+            elif position[1] > self.getBottom() and position[1] <= 183:
+                self.setCurrent(self.current + 1)
+            elif position[1] >= self.getTop() and position[1] <= self.getBottom():
+                self.isPressed = True
+
+    def endClick(self) -> None:
+        self.isPressed = False

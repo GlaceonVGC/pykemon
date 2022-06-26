@@ -9,7 +9,8 @@ class Version():
         return len(self.log)
 
 VERSIONS = (
-    Version("some version #1", "some feature #1", "some feature #2", "some feature #3"),
-    Version("some version #2", "some feature #4"),
     Version("DEV 0.0", "Date: Jun. 22 2022", "Added \"Update Log\" section"),
 )
+
+def get_proper(index: int) -> int:
+    return max(0, min(len(VERSIONS) - 1, index))
