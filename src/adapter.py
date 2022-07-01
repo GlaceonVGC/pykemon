@@ -1,10 +1,11 @@
 import sys
+import typing
 import pygame
 import align
+import archive
 import color
 import config
 import draw
-import event_handler_interface
 import shapes
 
 # adapter for pygame.time.get_ticks
@@ -15,49 +16,6 @@ def get_tick() -> int:
     return ticks
 
 mouseX, mouseY = mousePosition = (0, 0)
-
-def map_to_lower(position: tuple) -> tuple:
-    return (position[0], position[1] - 192) if position[1] >= 192 else None
-
-# setting event handler
-eventHandler = event_handler_interface.EventHandlerInterface() # a dull one for default
-def set_event_handler(newHandler) -> None:
-    global eventHandler
-    eventHandler = newHandler
-
-# displaying the screen, setting the time of the frame and reacting to events
-keys = {}
-click = None
-def new_frame() -> None:
-    global ticks, mousePosition, click, mouseX, mouseY
-    pygame.display.flip()
-    ticks = pygame.time.get_ticks()
-    if (mousePosition := map_to_lower(pygame.mouse.get_pos())) is not None:
-        mouseX, mouseY = mousePosition
-    else:
-        mouseX = mouseY = None
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        elif event.type == pygame.KEYDOWN:
-            if event.key not in keys:
-                keys[event.key] = get_tick()
-        elif event.type == pygame.KEYUP:
-            if event.key in keys:
-                del keys[event.key]
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if mousePosition is not None and click is None:
-                eventHandler.click(mousePosition)
-                click = mousePosition
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if click is not None:
-                eventHandler.endClick()
-                click = None
-    for key in keys:
-        while keys[key] <= get_tick():
-            keys[key] += config.KEY_INTERVAL
-            eventHandler.key(key)
 
 # adapter for pygame.font.Font
 fonts = {}
@@ -114,11 +72,12 @@ class Surface():
 
 def Text(text: str, color: color.Color = None, size: int = 7) -> pygame.Surface:
     surface = Surface.create(get_font(size).size(text)[0], size + 1)
-    surface.blit(get_font(size).render(text, True, draw.FGC(color).convert()), (0, offset_y[size]))
+    surface.blit(get_font(size).render(text, True, draw.FGC(color).convert()),(0, offset_y[size]))
     return surface
 
-def quit() -> None:
+def quit() -> typing.NoReturn:
     pygame.quit()
     with open("archives.py", "w") as f:
-        for i in archives:
+        for i in archive.archives:
             f.write("archives.append(Archive(\"%s\", %d))\n" % (i.name, i.progress))
+    sys.exit()

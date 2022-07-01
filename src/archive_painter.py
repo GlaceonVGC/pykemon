@@ -20,7 +20,7 @@ class ArchivePainter(painter.PainterInterface):
     def paintUpper(self, upper: adapter.Surface) -> None:
         upper.stroke(shapes.Ellipse(56 - self.radius * 2, 88 - self.radius, self.radius * 2))
         upper.draw(shapes.Ellipse(52, 84, 8))
-        upper.draw(shapes.Rectangle(61, 72, 256, 30))
+        upper.draw(shapes.Rectangle(61, 72, 194, 30))
         upper.blit(adapter.Text("DEMO"), (63, 74))
         upper.blit(adapter.Text(language.PROGRESS % archive.archives[self.current].progress), (63, 83))
         upper.blit(adapter.Text(language.BADGE), (63, 92))

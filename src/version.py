@@ -9,7 +9,7 @@ class Version():
         return len(self.log)
 
 VERSIONS = (
-    Version("DEV 0.0", "Date: Jun. 22 2022", "Added \"Update Log\" section"),
+    Version("DEV 0.0", "Date: Jul. 1 2022", "Added \"Update Log\" section"),
 )
 
 def get_proper(index: int) -> int:

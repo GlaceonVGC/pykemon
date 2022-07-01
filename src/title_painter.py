@@ -20,7 +20,7 @@ class TitlePainter(painter.PainterInterface):
     def __init__(self) -> None:
         super().__init__()
         self.log = random.choice(version.VERSIONS[-1].log)
-        self.keys[config.SELECT] = SelectOperation()
+        painter.keys[config.SELECT] = SelectOperation()
         self.current = len(version.VERSIONS) - 1
         self.isPressed = False
 
@@ -62,8 +62,7 @@ class TitlePainter(painter.PainterInterface):
             lower.blit(adapter.Text(j), (10, 77 + 9 * i))
         lower.draw(shapes.Polygon((249, 52), (254, 57), (243, 57), (248, 52)))
         lower.draw(shapes.Rectangle(243, 59, 12, 125))
-        lower.draw(shapes.Rectangle(245, self.getTop(),
-                                    8, self.getBottom() - self.getTop()),
+        lower.draw(shapes.Rectangle(245, self.getTop(), 8, self.getBottom() - self.getTop()),
                    (color.RGBA(85, 85, 85), None))
         lower.draw(shapes.Polygon((254, 185), (249, 190), (248, 190), (243, 185)))
 
