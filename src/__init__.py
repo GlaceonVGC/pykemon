@@ -4,7 +4,7 @@ import title_painter
 import painter
 
 if __name__ == "__main__":
-    painter.current = title_painter.TitlePainter()
+    painter.set_current(title_painter.TitlePainter())
     screen = adapter.Surface.createScreen(256, 384)
     while True:
         screens = painter.current.paint()

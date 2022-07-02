@@ -9,12 +9,9 @@ import painter
 import shapes
 import version
 
-class SelectOperation(painter.Operation):
-    def __call__(self) -> None:
-        painter.current = archive_painter.ArchivePainter()
-
-    def text(self) -> str:
-        return language.SELECT_ARCHIVE
+SelectOperation = painter.operation(
+    __call__=lambda self: painter.set_current(archive_painter.ArchivePainter()),
+    text=lambda self: language.SELECT_ARCHIVE)
 
 class TitlePainter(painter.PainterInterface):
     def __init__(self) -> None:
@@ -44,7 +41,7 @@ class TitlePainter(painter.PainterInterface):
         return 64 + 118 * (self.getIndex() + 1) // len(version.VERSIONS)
 
     def getColors(self) -> tuple:
-        return (color.BLACK, color.RGBA(170, 170, 170))
+        return (color.BLACK, color.Gray(170))
 
     def paintUpper(self, upper: adapter.Surface) -> None:
         upper.blit(adapter.Surface.load("../resources/background.bmp"), (0, 0))
@@ -61,9 +58,9 @@ class TitlePainter(painter.PainterInterface):
             lower.draw(shapes.Ellipse(1, 77 + 9 * i, 8))
             lower.blit(adapter.Text(j), (10, 77 + 9 * i))
         lower.draw(shapes.Polygon((249, 52), (254, 57), (243, 57), (248, 52)))
-        lower.draw(shapes.Rectangle(243, 59, 12, 125))
-        lower.draw(shapes.Rectangle(245, self.getTop(), 8, self.getBottom() - self.getTop()),
-                   (color.RGBA(85, 85, 85), None))
+        lower.draw(shapes.Rectangle(243, 59, 255, 184))
+        lower.draw(shapes.Rectangle(245, self.getTop(), 253, self.getBottom()),
+                   (None, color.Gray(85)))
         lower.draw(shapes.Polygon((254, 185), (249, 190), (248, 190), (243, 185)))
 
     def clickLower(self, position: tuple) -> None:

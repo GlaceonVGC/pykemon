@@ -65,10 +65,13 @@ class Surface():
         shape.stroke(self.surface, draw.FGC(color))
 
     def draw(self, shape: shapes.Shape, colors: tuple = (None, None)) -> None:
-        shape.draw(self.surface, (draw.BGC(colors[0]), draw.FGC(colors[1])))
+        shape.draw(self.surface, (draw.FGC(colors[0]), draw.BGC(colors[1])))
 
     def scale(self, width: int, height: int):
         return Surface.copy(pygame.transform.scale(self.surface, (width, height)))
+
+    def setAlpha(self, alpha: int) -> None:
+        self.surface.set_alpha(alpha)
 
 def Text(text: str, color: color.Color = None, size: int = 7) -> pygame.Surface:
     surface = Surface.create(get_font(size).size(text)[0], size + 1)
@@ -79,5 +82,5 @@ def quit() -> typing.NoReturn:
     pygame.quit()
     with open("archives.py", "w") as f:
         for i in archive.archives:
-            f.write("archives.append(Archive(\"%s\", %d))\n" % (i.name, i.progress))
+            f.write(f"archives.append({i})\n")
     sys.exit()

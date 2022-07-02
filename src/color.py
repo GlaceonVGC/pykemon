@@ -7,6 +7,9 @@ class Color():
     def alpha(self, a: int):
         return RGBA(self.r, self.g, self.b, a)
 
+    def __str__(self) -> str:
+        return f"color.RGBA({self.r}, {self.g}, {self.b}, {self.a})"
+
 def RGBA(r: int, g: int, b: int, a: int = 255) -> Color:
     color = Color()
     color.r = r
@@ -14,6 +17,9 @@ def RGBA(r: int, g: int, b: int, a: int = 255) -> Color:
     color.b = b
     color.a = a
     return color
+
+def Gray(rgb: int, a: int = 255) -> Color:
+    return RGBA(rgb, rgb, rgb, a)
 
 # TODO: write HSLA algorithm
 
