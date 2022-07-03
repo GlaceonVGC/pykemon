@@ -80,7 +80,5 @@ def Text(text: str, color: color.Color = None, size: int = 7) -> pygame.Surface:
 
 def quit() -> typing.NoReturn:
     pygame.quit()
-    with open("archives.py", "w") as f:
-        for i in archive.archives:
-            f.write(f"archives.append({i})\n")
+    archive.save()
     sys.exit()

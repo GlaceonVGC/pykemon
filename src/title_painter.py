@@ -7,19 +7,19 @@ import color
 import language
 import painter
 import shapes
+import toolkit
 import version
-
-SelectOperation = painter.operation(
-    __call__=lambda self: painter.set_current(archive_painter.ArchivePainter()),
-    text=lambda self: language.SELECT_ARCHIVE)
 
 class TitlePainter(painter.PainterInterface):
     def __init__(self) -> None:
-        super().__init__()
         self.log = random.choice(version.VERSIONS[-1].log)
-        painter.keys[config.SELECT] = SelectOperation()
         self.current = len(version.VERSIONS) - 1
         self.isPressed = False
+
+    def getKeys(self) -> dict:
+        return {config.SELECT: painter.operation(
+            toolkit.bind(painter.set_current, archive_painter.ArchivePainter()),
+            toolkit.const(language.SELECT_ARCHIVE))}
 
     def setCurrent(self, newCurrent: int) -> None:
         self.current = version.get_proper(newCurrent)

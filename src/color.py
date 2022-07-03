@@ -7,8 +7,8 @@ class Color():
     def alpha(self, a: int):
         return RGBA(self.r, self.g, self.b, a)
 
-    def __str__(self) -> str:
-        return f"color.RGBA({self.r}, {self.g}, {self.b}, {self.a})"
+    def __repr__(self) -> str:
+        return f"color.RGBA({self.r!r}, {self.g!r}, {self.b!r}, {self.a!r})"
 
 def RGBA(r: int, g: int, b: int, a: int = 255) -> Color:
     color = Color()

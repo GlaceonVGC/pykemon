@@ -6,10 +6,11 @@ import draw
 import language
 import linear_animation
 import shapes
+import toolkit
 
 expandHint = False
 def get_top_bound() -> int:
-    return 191 - 15 * len(keys) if expandHint else 176
+    return 191 - 15 * len(list(filter(lambda k: keys[k].condition(), keys))) if expandHint else 176
 
 animation = linear_animation.new(lambda self: get_top_bound())
 def switch_hint() -> None:
@@ -17,21 +18,18 @@ def switch_hint() -> None:
     expandHint = not expandHint
     animation.reset((-1 if expandHint else 1) * config.HINT_ANIMATION_SPEED)
 
-def operation(**keys) -> type:
+def operation(call, text, condition=toolkit.const(True)) -> type:
     class Operation():
         def __len__(self) -> int:
             return adapter.get_font(1).size(self.text())[0]
-    return type("AnonymousOperation", (Operation,), keys)
+    return type("AnonymousOperation", (Operation,), {
+        "__call__": lambda self: call(),
+        "text": lambda self: text(),
+        "condition": lambda self: condition()})()
 
-YOperation = operation(
-    __call__=lambda self: switch_hint(),
-    text=lambda self: language.HIDE_HINTS if expandHint else language.SHOW_HINTS)
+keys = {}
 
-class PainterInterface(): # interface, getColors(), paintUpper(), paintLower() and clickLower() to be defined
-    def __init__(self) -> None:
-        global keys
-        keys = {config.Y: YOperation()}
-
+class PainterInterface(): # interface, getColors(), paintUpper(), paintLower(), getKeys() and clickLower() to be defined
     def paintHint(self, upper: adapter.Surface, hint: int, position: tuple, a: align.Align = align.Q) -> None:
         surface = adapter.Surface.create(16 + 4 * len(keys[hint]), 16)
         surface.fill(shapes.Ellipse(1, 1, 14), color.WHITE)
@@ -40,15 +38,14 @@ class PainterInterface(): # interface, getColors(), paintUpper(), paintLower() a
         upper.blit(surface, position, a)
 
     def paintMoreHints(self, upper: adapter.Surface) -> None:
-        top = animation.get()
+        top = int(animation.get())
         upper.fill(shapes.Rectangle(0, top, 256, 176), color.BLACK)
         if expandHint:
             y = 161
             for key in reversed(keys.keys()):
-                if key in config.KEY_STR and key != config.Y and y >= top:
+                if key != config.Y and y >= top and keys[key].condition():
                     self.paintHint(upper, key, (0, y))
                     y -= 15
-            
 
     def paintHints(self, upper: adapter.Surface) -> None:
         upper.fill(shapes.Rectangle(0, 176, 256, 192), color.BLACK)
@@ -57,7 +54,7 @@ class PainterInterface(): # interface, getColors(), paintUpper(), paintLower() a
         else:
             x = 0
             for key in keys:
-                if key in config.KEY_STR and key != config.Y:
+                if key != config.Y and keys[key].condition():
                     self.paintHint(upper, key, (x, 176))
                     x += 16 + 4 * len(keys[key])
             self.paintHint(upper, config.Y, (254, 176), align.E)
@@ -69,13 +66,10 @@ class PainterInterface(): # interface, getColors(), paintUpper(), paintLower() a
         upper.fill(shapes.Rectangle(0, 0, 256, 192), color.WHITE)
         lower.fill(shapes.Rectangle(0, 0, 256, 192), color.WHITE)
         draw.set_colors(*self.getColors())
-        if animation.get() < get_top_bound() and animation.a < 0:
-            if get_top_bound() <= animation.dest:
-                animation.terminate()
-            else:
-                animation.reset(config.HINT_ANIMATION_SPEED)
-        if animation.get() > 176 and animation.a > 0:
-            animation.terminate()
+        if animation.get() < get_top_bound() and animation.a <= 0 and get_top_bound() > animation.dest:
+            animation.reset(config.HINT_ANIMATION_SPEED)
+        if animation.get() > get_top_bound() and animation.a >= 0 and get_top_bound() < animation.dest:
+            animation.reset(-config.HINT_ANIMATION_SPEED)
         self.paintUpper(upper)
         self.paintLower(lower)
         self.paintMoreHints(temp)
@@ -89,5 +83,7 @@ class PainterInterface(): # interface, getColors(), paintUpper(), paintLower() a
             keys[key]()
 
 def set_current(new: PainterInterface) -> None:
-    global current
+    global current, keys
     current = new
+    keys = {config.Y: operation(switch_hint, lambda: language.HIDE_HINTS if expandHint else language.SHOW_HINTS)}
+    keys.update(new.getKeys())

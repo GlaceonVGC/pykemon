@@ -2,6 +2,7 @@ import pygame # for key constants
 
 KEY_INTERVAL = 500 # ms
 HINT_ANIMATION_SPEED = 0.05 # px per ms
+ARCHIVE_ANIMATION_SPEED = 0.005 # archive per ms
 
 LEFT = pygame.K_LEFT
 RIGHT = pygame.K_RIGHT
