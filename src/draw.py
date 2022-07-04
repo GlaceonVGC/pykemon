@@ -10,6 +10,6 @@ def FGC(color: color.Color) -> color.Color:
 def BGC(color: color.Color) -> color.Color:
     return bgc if color is None else color
 
-def set_colors(*colors: tuple) -> None:
+def set_colors(colors: tuple) -> None:
     global fgc, bgc
     fgc, bgc = colors

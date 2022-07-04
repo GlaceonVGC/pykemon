@@ -28,8 +28,10 @@ def operation(call, text, condition=toolkit.const(True)) -> type:
         "condition": lambda self: condition()})()
 
 keys = {}
+def get_keys() -> list:
+    return list(filter(lambda key: key != config.Y and keys[key].condition(), keys.keys()))
 
-class PainterInterface(): # interface, getColors(), paintUpper(), paintLower(), getKeys() and clickLower() to be defined
+class Painter(): # interface, getColors(), paintUpper(), paintLower(), getKeys(), endClick() and clickLower() to be defined
     def paintHint(self, upper: adapter.Surface, hint: int, position: tuple, a: align.Align = align.Q) -> None:
         surface = adapter.Surface.create(16 + 4 * len(keys[hint]), 16)
         surface.fill(shapes.Ellipse(1, 1, 14), color.WHITE)
@@ -38,40 +40,34 @@ class PainterInterface(): # interface, getColors(), paintUpper(), paintLower(), 
         upper.blit(surface, position, a)
 
     def paintMoreHints(self, upper: adapter.Surface) -> None:
-        top = int(animation.get())
-        upper.fill(shapes.Rectangle(0, top, 256, 176), color.BLACK)
+        upper.fill(shapes.Rectangle(0, int(animation.get()), 256, 176), color.BLACK)
         if expandHint:
-            y = 161
-            for key in reversed(keys.keys()):
-                if key != config.Y and y >= top and keys[key].condition():
-                    self.paintHint(upper, key, (0, y))
-                    y -= 15
+            for i, key in list(enumerate(reversed(get_keys())))[:(161 - int(animation.get())) // 15 + 1]:
+                self.paintHint(upper, key, (0, 161 - 15 * i))
 
     def paintHints(self, upper: adapter.Surface) -> None:
         upper.fill(shapes.Rectangle(0, 176, 256, 192), color.BLACK)
         if expandHint:
             self.paintHint(upper, config.Y, (0, 176))
         else:
-            x = 0
-            for key in keys:
-                if key != config.Y and keys[key].condition():
-                    self.paintHint(upper, key, (x, 176))
-                    x += 16 + 4 * len(keys[key])
+            for i, key in enumerate(get_keys()):
+                upper.fill(shapes.Ellipse(15 * i + 1, 177, 14), color.WHITE)
+                upper.blit(adapter.Text(config.KEY_STR[key], color.BLACK, 8), (15 * i + 8, 180), align.W)
             self.paintHint(upper, config.Y, (254, 176), align.E)
 
     def paint(self) -> tuple:
         upper = adapter.Surface.create(256, 192)
         lower = adapter.Surface.create(256, 192)
-        temp = adapter.Surface.create(256, 192)
         upper.fill(shapes.Rectangle(0, 0, 256, 192), color.WHITE)
         lower.fill(shapes.Rectangle(0, 0, 256, 192), color.WHITE)
-        draw.set_colors(*self.getColors())
+        draw.set_colors(self.getColors())
         if animation.get() < get_top_bound() and animation.a <= 0 and get_top_bound() > animation.dest:
             animation.reset(config.HINT_ANIMATION_SPEED)
         if animation.get() > get_top_bound() and animation.a >= 0 and get_top_bound() < animation.dest:
             animation.reset(-config.HINT_ANIMATION_SPEED)
         self.paintUpper(upper)
         self.paintLower(lower)
+        temp = adapter.Surface.create(256, 192)
         self.paintMoreHints(temp)
         temp.setAlpha(191)
         upper.blit(temp, (0, 0))
@@ -82,7 +78,7 @@ class PainterInterface(): # interface, getColors(), paintUpper(), paintLower(), 
         if key in keys:
             keys[key]()
 
-def set_current(new: PainterInterface) -> None:
+def set_current(new: Painter) -> None:
     global current, keys
     current = new
     keys = {config.Y: operation(switch_hint, lambda: language.HIDE_HINTS if expandHint else language.SHOW_HINTS)}

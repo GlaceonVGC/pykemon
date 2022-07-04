@@ -10,7 +10,7 @@ import shapes
 import toolkit
 import version
 
-class TitlePainter(painter.PainterInterface):
+class TitlePainter(painter.Painter):
     def __init__(self) -> None:
         self.log = random.choice(version.VERSIONS[-1].log)
         self.current = len(version.VERSIONS) - 1

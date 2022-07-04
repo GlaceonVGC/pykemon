@@ -10,16 +10,14 @@ class Archive():
         self.date = d
         self.location = l
 
-    @staticmethod
-    def new():
-        return Archive(language.UNINITIALIZED_NAME, (color.Gray(170), color.BLACK), date.Date(), location.Location())
-
     def __repr__(self) -> str:
         return f"archive.Archive({self.name!r}, ({self.colors[0]!r}, {self.colors[1]!r}), {self.date!r}, {self.location!r})"
 
 archives = []
+new = Archive(language.UNINITIALIZED_NAME, (color.BLACK, color.Gray(170)), date.Date(), location.Location())
 with open("archives.py") as f:
     toolkit.sandbox(f.read())
+current = archives[0]
 
 def save() -> None:
     with open("archives.py", "w") as f:
