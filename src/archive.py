@@ -14,10 +14,9 @@ class Archive():
         return f"archive.Archive({self.name!r}, ({self.colors[0]!r}, {self.colors[1]!r}), {self.date!r}, {self.location!r})"
 
 archives = []
-new = Archive(language.UNINITIALIZED_NAME, (color.BLACK, color.Gray(170)), date.Date(), location.Location())
-with open("archives.py") as f:
-    toolkit.sandbox(f.read())
+toolkit.sandbox("archives.py")
 current = archives[0]
+new = Archive(language.UNINITIALIZED_NAME, (color.BLACK, color.Gray(170)), date.Date(), location.Location())
 
 def save() -> None:
     with open("archives.py", "w") as f:

@@ -1,4 +1,6 @@
+resources/
 src/archives.py
+src/maps.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

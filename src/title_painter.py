@@ -18,15 +18,13 @@ class TitlePainter(painter.Painter):
 
     def getKeys(self) -> dict:
         return {config.SELECT: painter.operation(
-            toolkit.bind(painter.set_current, archive_painter.ArchivePainter()),
+            toolkit.bind(painter.append_painter, archive_painter.ArchivePainter()),
             toolkit.const(language.SELECT_ARCHIVE))}
 
     def setCurrent(self, newCurrent: int) -> None:
         self.current = version.get_proper(newCurrent)
 
     def getIndex(self) -> int:
-        if adapter.mousePosition is None:
-            self.isPressed = False
         if self.isPressed:
             self.setCurrent((adapter.mouseY - 61) * len(version.VERSIONS) // 118)
         return self.current
@@ -63,17 +61,17 @@ class TitlePainter(painter.Painter):
                    (None, color.Gray(85)))
         lower.draw(shapes.Polygon((254, 185), (249, 190), (248, 190), (243, 185)))
 
-    def clickLower(self, position: tuple) -> None:
-        if position[1] <= 57 and position[0] + position[1] >= 300 and position[0] - position[1] <= 197:
+    def clickLower(self) -> None:
+        if adapter.mouseY <= 57 and adapter.mouseX + adapter.mouseY >= 300 and adapter.mouseX - adapter.mouseY <= 197:
             self.setCurrent(self.current - 1)
-        elif position[1] >= 185 and position[0] + position[1] <= 439 and position[0] - position[1] >= 58:
+        elif adapter.mouseY >= 185 and adapter.mouseX + adapter.mouseY <= 439 and adapter.mouseX - adapter.mouseY >= 58:
             self.setCurrent(self.current + 1)
-        elif position[0] >= 243 and position[0] <= 254:
-            if position[1] >= 59 and position[1] < self.getTop():
+        elif adapter.mouseX >= 243 and adapter.mouseX <= 254:
+            if adapter.mouseY >= 59 and adapter.mouseY < self.getTop():
                 self.setCurrent(self.current - 1)
-            elif position[1] > self.getBottom() and position[1] <= 183:
+            elif adapter.mouseY > self.getBottom() and adapter.mouseY <= 183:
                 self.setCurrent(self.current + 1)
-            elif position[1] >= self.getTop() and position[1] <= self.getBottom():
+            elif adapter.mouseY >= self.getTop() and adapter.mouseY <= self.getBottom():
                 self.isPressed = True
 
     def endClick(self) -> None:

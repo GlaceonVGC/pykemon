@@ -32,6 +32,11 @@ def get_keys() -> list:
     return list(filter(lambda key: key != config.Y and keys[key].condition(), keys.keys()))
 
 class Painter(): # interface, getColors(), paintUpper(), paintLower(), getKeys(), endClick() and clickLower() to be defined
+    def getAllKeys(self) -> dict:
+        keys = self.getKeys()
+        keys[config.Y] = operation(switch_hint, lambda: language.HIDE_HINTS if expandHint else language.SHOW_HINTS)
+        return keys
+
     def paintHint(self, upper: adapter.Surface, hint: int, position: tuple, a: align.Align = align.Q) -> None:
         surface = adapter.Surface.create(16 + 4 * len(keys[hint]), 16)
         surface.fill(shapes.Ellipse(1, 1, 14), color.WHITE)
@@ -78,8 +83,8 @@ class Painter(): # interface, getColors(), paintUpper(), paintLower(), getKeys()
         if key in keys:
             keys[key]()
 
-def set_current(new: Painter) -> None:
-    global current, keys
-    current = new
-    keys = {config.Y: operation(switch_hint, lambda: language.HIDE_HINTS if expandHint else language.SHOW_HINTS)}
-    keys.update(new.getKeys())
+painters = []
+def append_painter(new: Painter) -> None:
+    global keys
+    painters.append(new)
+    keys = new.getAllKeys()

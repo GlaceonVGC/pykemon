@@ -16,7 +16,7 @@ class MapPainter(painter.Painter):
     def paintLower(self, lower: adapter.Surface) -> None:
         pass
 
-    def clickLower(self, position: tuple) -> None:
+    def clickLower(self) -> None:
         pass
 
     def endClick(self) -> None:

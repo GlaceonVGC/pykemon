@@ -14,3 +14,4 @@ X = pygame.K_s
 Y = pygame.K_a
 SELECT = pygame.K_RETURN
 KEY_STR = {LEFT: "←", RIGHT: "→", UP: "↑", DOWN: "↓", A: "Ａ", B: "Ｂ", X: "Ｘ", Y: "Ｙ", SELECT: "▶"}
+keys = list(KEY_STR.keys())

@@ -4,37 +4,35 @@ import config
 import painter
 
 def map_to_lower(position: tuple) -> tuple:
-    return (position[0], position[1] - 192) if position[1] >= 192 else None
+    return (position[0], position[1] - 192) if position[1] >= 192 else (None, None)
 
-keys = {}
-click = None
+time = {key: -config.KEY_INTERVAL for key in config.keys}
+keys = set()
+click = False
 def new_frame() -> None:
-    global click, mouseX, mouseY
+    global click
     pygame.display.flip()
     adapter.ticks = pygame.time.get_ticks()
-    adapter.mousePosition = map_to_lower(pygame.mouse.get_pos())
-    if adapter.mousePosition is not None:
-        mouseX, mouseY = adapter.mousePosition
-    else:
-        mouseX = mouseY = None
+    adapter.mouseX, adapter.mouseY = map_to_lower(pygame.mouse.get_pos())
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             adapter.quit()
         elif event.type == pygame.KEYDOWN:
-            if event.key not in keys:
-                keys[event.key] = adapter.get_tick()
+            if event.key in config.keys and time[event.key] <= adapter.get_tick():
+                time[event.key] = adapter.get_tick()
+                keys.add(event.key)
         elif event.type == pygame.KEYUP:
             if event.key in keys:
-                del keys[event.key]
+                keys.remove(event.key)
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            if adapter.mousePosition is not None and click is None:
-                painter.current.clickLower(adapter.mousePosition)
-                click = adapter.mousePosition
+            if (adapter.mouseX, adapter.mouseY) != (None, None):
+                painter.painters[-1].clickLower()
+                click = True
         elif event.type == pygame.MOUSEBUTTONUP:
-            if click is not None:
-                painter.current.endClick()
-                click = None
+            if click:
+                painter.painters[-1].endClick()
+                click = False
     for key in keys:
-        while keys[key] <= adapter.get_tick():
-            keys[key] += config.KEY_INTERVAL
-            painter.current.key(key)
+        while time[key] <= adapter.get_tick():
+            time[key] += config.KEY_INTERVAL
+            painter.painters[-1].key(key)

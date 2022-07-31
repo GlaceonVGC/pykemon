@@ -1,7 +1,8 @@
 import color
 
-def sandbox(code: str) -> None:
-    exec(code, {}, {})
+def sandbox(file: str) -> None:
+    with open(file) as f:
+        exec(f.read(), {}, {})
 
 def const(value):
     return lambda: value

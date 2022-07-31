@@ -39,7 +39,7 @@ def switch_create() -> None:
     archive.current = archive.new if create else archive.archives[bound]
 
 def confirm() -> None:
-    painter.set_current(map_painter.MapPainter())
+    painter.append_painter(map_painter.MapPainter())
     if create:
         archive.archives.append(archive.new)
 
@@ -83,7 +83,7 @@ class ArchivePainter(painter.Painter):
         lower.draw(shapes.Polygon((5, 91), (5, 100), (1, 96), (1, 95)), archive.current.colors)
         lower.draw(shapes.Polygon((254, 96), (254, 95), (250, 91), (250, 100)), archive.current.colors)
 
-    def clickLower(self, position: tuple) -> None:
+    def clickLower(self) -> None:
         pass
 
     def endClick(self) -> None:

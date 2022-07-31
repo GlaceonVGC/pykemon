@@ -15,7 +15,7 @@ ticks = 0
 def get_tick() -> int:
     return ticks
 
-mouseX, mouseY = mousePosition = (0, 0)
+mouseX, mouseY = (0, 0)
 
 # adapter for pygame.font.Font
 fonts = {}
